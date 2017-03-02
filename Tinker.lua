@@ -1,6 +1,6 @@
 -- Author: paroxysm
--- Version: 4
--- Updated: 20.02.2017
+-- Version: 4.1
+-- Updated: 03.03.2017
 
 -- Explaining
 -- 100	=	Enabled
@@ -11,6 +11,8 @@
 local Tinker = {}
 
 Tinker.IsEnabled = Menu.AddOption({ "Hero Specific","Tinker" }, "Enabled", "")
+Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.1 (03.03.17)\r\n - added stop cast animation\r\n - spells default count - 15\r\n - added changelog in menu", 1,1,1)
+Menu.SetValueName(Tinker.Version, 1, "")
 Tinker.DMGCalculator = Menu.AddOption({ "Hero Specific","Tinker" }, "Exrta [DMG Calculator]", "")
 Tinker.KillIndicator = Menu.AddOption({ "Hero Specific","Tinker" }, "Exrta [Kill Indicator]", "")
 Tinker.KillSteal = Menu.AddOption({ "Hero Specific","Tinker" }, "Exrta [Steal Kill by Spells]", "")
@@ -19,7 +21,7 @@ Tinker.FontKill = Renderer.LoadFont("Tahoma", 30, Enum.FontWeight.BOLD)
 
 -- Local options
 Tinker.OrdersCount = 10 -- Edit for more orders
-Tinker.SpellCount = 10 -- Edit for more spells
+Tinker.SpellCount = 15 -- Edit for more spells
 Tinker.NextTime = 0
 Tinker.CurrentTime = 0
 Tinker.Hero = nil
@@ -32,6 +34,8 @@ Tinker.TotalMagicFactor = 0
 Tinker.TotalPureDamage = 0
 Tinker.TotalManaCost = 0
 Tinker.TotalDamage = 0
+
+Tinker.StopAnimation = false
 
 Tinker.Items = {}
 Tinker.Items[1] =  "Off"
@@ -105,6 +109,7 @@ function Tinker.OnUpdate()
 	if not GameRules.GetGameState() == 5 then return end
 	if not Menu.IsEnabled(Tinker.IsEnabled) then return end
 	if Tinker.CurrentTime <= Tinker.NextTime then return end
+	if Tinker.StopAnimation then Player.HoldPosition(Players.GetLocal(), Tinker.Hero, false) Tinker.StopAnimation = false end
 	Tinker.Hero = Heroes.GetLocal()
 	if Tinker.Hero == nil then Tinker.Hero = Heroes.GetLocal() end
 	Tinker.ManaPoint = NPC.GetMana(Tinker.Hero)
@@ -592,7 +597,8 @@ function BlinkToMouse()
 	then 
 		Ability.CastPosition(abilityBlink, Input.GetWorldCursorPos()) 
 		Tinker.LastCastAbility = abilityBlink
-		Tinker.NextTime = Tinker.CurrentTime + Ability.GetCastPoint(abilityBlink) + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+		Tinker.NextTime = Tinker.CurrentTime + Ability.GetCastPoint(abilityBlink) + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING) + 0.2
+		Tinker.StopAnimation = true
 	return end
 end
 
@@ -617,6 +623,7 @@ function Soul()
 		Ability.CastNoTarget(abilitySoul) 
 		Tinker.LastCastAbility = abilitySoul
 		Tinker.NextTime = Tinker.CurrentTime + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+		Tinker.StopAnimation = true
 	return end
 end
 
@@ -632,6 +639,7 @@ function Hex()
 		Ability.CastTarget(abilityHex, Tinker.NearestEnemyHero) 
 		Tinker.LastCastAbility = abilityHex
 		Tinker.NextTime = Tinker.CurrentTime + Ability.GetCastPoint(abilityHex) + 0.1 + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+		Tinker.StopAnimation = true
 	return end
 end
 
@@ -646,7 +654,8 @@ function Veil()
 	then 
 		Ability.CastPosition(abilityVeil, Tinker.NearestEnemyHeroPos) 
 		Tinker.LastCastAbility = abilityVeil
-		Tinker.NextTime = Tinker.CurrentTime + Ability.GetCastPoint(abilityVeil) + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+		Tinker.NextTime = Tinker.CurrentTime + Ability.GetCastPoint(abilityVeil) + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING) + 0.1
+		Tinker.StopAnimation = true
 	return end
 end
 
@@ -661,7 +670,8 @@ function Ethereal()
 	then 
 		Ability.CastTarget(abilityEthereal, Tinker.NearestEnemyHero) 
 		Tinker.LastCastAbility = abilityEthereal
-		Tinker.NextTime = Tinker.CurrentTime + Ability.GetCastPoint(abilityEthereal) + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+		Tinker.NextTime = Tinker.CurrentTime + Ability.GetCastPoint(abilityEthereal) + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING) + 0.2
+		Tinker.StopAnimation = true
 	return end
 end
 
@@ -736,6 +746,7 @@ function Dagon()
 			Ability.CastTarget(abilityDagon, Tinker.NearestEnemyHero) 
 			Tinker.LastCastAbility = abilityDagon
 			Tinker.NextTime = Tinker.CurrentTime + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+			Tinker.StopAnimation = true
 		return end
 	end
 end
@@ -748,7 +759,8 @@ function Shiva()
 	then 
 		Ability.CastNoTarget(abilityShiva) 
 		Tinker.LastCastAbility = abilityShiva
-		Tinker.NextTime = Tinker.CurrentTime + 0.2 + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+		Tinker.NextTime = Tinker.CurrentTime + 0.1 + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+		Tinker.StopAnimation = true
 	return end
 end
 
@@ -764,7 +776,8 @@ function Laser()
 	then 
 		Ability.CastTarget(abilityLaser, Tinker.NearestEnemyHero) 
 		Tinker.LastCastAbility = abilityLaser
-		Tinker.NextTime = Tinker.CurrentTime + Ability.GetCastPoint(abilityLaser) + 0.5 + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+		Tinker.NextTime = Tinker.CurrentTime + Ability.GetCastPoint(abilityLaser) + 0.2 + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+		Tinker.StopAnimation = true
 	return end
 end
 
@@ -780,7 +793,8 @@ function Rockets()
 	then 
 		Ability.CastNoTarget(abilityRockets) 
 		Tinker.LastCastAbility = abilityRockets
-		Tinker.NextTime = Tinker.CurrentTime + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+		Tinker.NextTime = Tinker.CurrentTime + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING) + 0.1
+		Tinker.StopAnimation = true
 	return end
 end
 
