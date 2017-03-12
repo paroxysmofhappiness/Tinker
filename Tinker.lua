@@ -112,6 +112,7 @@ function Tinker.OnUpdate()
 	if Tinker.Hero == nil then Tinker.Hero = Heroes.GetLocal() end
 	if NPC.GetUnitName(Tinker.Hero) ~= "npc_dota_hero_tinker" then return end
 	if NPC.HasModifier(Tinker.Hero, "modifier_teleporting") then return end
+	if not Entity.IsAlive(Tinker.Hero) then return end
 	Tinker.ManaPoint = NPC.GetMana(Tinker.Hero)
 	-- Orders
 	for i = 1, Tinker.OrdersCount do
