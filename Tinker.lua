@@ -1,17 +1,10 @@
 -- Author: paroxysm
--- Version: 4.1
--- Updated: 03.03.2017
-
--- Explaining
--- 100	=	Enabled
--- 200	=	Key
--- 300	=	Delay Reset
--- 400	=	MP Threshold
+-- Version: 4.2
+-- Updated: 12.03.2017
 
 local Tinker = {}
-
 Tinker.IsEnabled = Menu.AddOption({ "Hero Specific","Tinker" }, "Enabled", "")
-Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.1 (03.03.17)\r\n - added stop cast animation\r\n - spells default count - 15\r\n - added changelog in menu", 1,1,1)
+Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.2 (12.03.17)\r\n - bug fixes\r\n - added check for teleporting", 1,1,1)
 Menu.SetValueName(Tinker.Version, 1, "")
 Tinker.DMGCalculator = Menu.AddOption({ "Hero Specific","Tinker" }, "Exrta [DMG Calculator]", "")
 Tinker.KillIndicator = Menu.AddOption({ "Hero Specific","Tinker" }, "Exrta [Kill Indicator]", "")
@@ -80,6 +73,11 @@ for k,v in pairs(Tinker.Items) do
 	tempi = tempi + 1
 end
 
+-- Explaining
+-- 100	=	Enabled
+-- 200	=	Key
+-- 300	=	Delay Reset
+-- 400	=	MP Threshold
 for i = 1, Tinker.OrdersCount do 
 	Tinker.Orders[i] = {}
 	local temp = i
@@ -106,12 +104,14 @@ Tinker.ComboLastCastTime = {}
 
 function Tinker.OnUpdate()
 	Tinker.CurrentTime = GameRules.GetGameTime()
+	if not Engine.IsInGame() then return end
 	if not GameRules.GetGameState() == 5 then return end
 	if not Menu.IsEnabled(Tinker.IsEnabled) then return end
 	if Tinker.CurrentTime <= Tinker.NextTime then return end
 	if Tinker.StopAnimation then Player.HoldPosition(Players.GetLocal(), Tinker.Hero, false) Tinker.StopAnimation = false end
-	Tinker.Hero = Heroes.GetLocal()
 	if Tinker.Hero == nil then Tinker.Hero = Heroes.GetLocal() end
+	if NPC.GetUnitName(Tinker.Hero) ~= "npc_dota_hero_tinker" then return end
+	if NPC.HasModifier(Tinker.Hero, "modifier_teleporting") then return end
 	Tinker.ManaPoint = NPC.GetMana(Tinker.Hero)
 	-- Orders
 	for i = 1, Tinker.OrdersCount do
@@ -129,7 +129,6 @@ function Tinker.OnUpdate()
 			Tinker.ComboLastCastTime[i] = Tinker.CurrentTime
 			
 			if Tinker.ManaPoint <= Menu.GetValue(Tinker.Orders[i][400]) then return end
-			if NPC.GetUnitName(Tinker.Hero) ~= "npc_dota_hero_tinker" then return end
 			if NPC.IsChannellingAbility(Tinker.Hero) then return end
 			if NPC.IsSilenced(Tinker.Hero) then return end
 			if NPC.IsStunned(Tinker.Hero) then return end
@@ -235,7 +234,7 @@ end
 
 function Tinker.OnDraw()
 	if not Menu.IsEnabled(Tinker.DMGCalculator) then return true end
-	if Tinker.Hero == nil then return end
+	if not Engine.IsInGame() then return end
 	CalculateTotalDMG()
 	if Tinker.TotalDamage == 0 then return end
 	Renderer.SetDrawColor(0, 0, 0, 255)
