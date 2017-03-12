@@ -234,7 +234,8 @@ end
 
 function Tinker.OnDraw()
 	if not Menu.IsEnabled(Tinker.DMGCalculator) then return true end
-	if not Engine.IsInGame() then return end
+	if not Engine.IsInGame() then Tinker.Hero = nil return end
+	if NPC.GetUnitName(Tinker.Hero) ~= "npc_dota_hero_tinker" then return end
 	CalculateTotalDMG()
 	if Tinker.TotalDamage == 0 then return end
 	Renderer.SetDrawColor(0, 0, 0, 255)
