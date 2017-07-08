@@ -1,10 +1,10 @@
 -- Author: paroxysm
--- Version: 4.2
--- Updated: 12.03.2017
+-- Version: 4.2.1
+-- Updated: 08.07.2017
 
 local Tinker = {}
 Tinker.IsEnabled = Menu.AddOption({ "Hero Specific","Tinker" }, "Enabled", "")
-Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.2 (12.03.17)\r\n - bug fixes\r\n - added check for teleporting", 1,1,1)
+Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.2.1 (08.07.17)\r\n - bug fixes", 1,1,1)
 Menu.SetValueName(Tinker.Version, 1, "")
 Tinker.DMGCalculator = Menu.AddOption({ "Hero Specific","Tinker" }, "Exrta [DMG Calculator]", "")
 Tinker.KillIndicator = Menu.AddOption({ "Hero Specific","Tinker" }, "Exrta [Kill Indicator]", "")
@@ -236,6 +236,7 @@ end
 function Tinker.OnDraw()
 	if not Menu.IsEnabled(Tinker.DMGCalculator) then return true end
 	if not Engine.IsInGame() then Tinker.Hero = nil return end
+	if Tinker.Hero == nil then return end
 	if NPC.GetUnitName(Tinker.Hero) ~= "npc_dota_hero_tinker" then return end
 	CalculateTotalDMG()
 	if Tinker.TotalDamage == 0 then return end
