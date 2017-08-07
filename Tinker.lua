@@ -1,14 +1,25 @@
 -- Author: paroxysm
--- Version: 4.2.1
--- Updated: 08.07.2017
+-- Version: 4.3
+-- Updated: 08.08.2017
 
 local Tinker = {}
 Tinker.IsEnabled = Menu.AddOption({ "Hero Specific","Tinker" }, "Enabled", "")
-Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.2.1 (08.07.17)\r\n - bug fixes", 1,1,1)
+Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.3 (08.08.17)\r\n - Added Safe Blink\r\n - Added Fail Switch\r\n - Extra options moved in another menu\r\n - DMG Calculator now have two styles\r\n - in Orders added Closest to mouse option\r\n - Bug fixes", 1,1,1)
 Menu.SetValueName(Tinker.Version, 1, "")
-Tinker.DMGCalculator = Menu.AddOption({ "Hero Specific","Tinker" }, "Exrta [DMG Calculator]", "")
-Tinker.KillIndicator = Menu.AddOption({ "Hero Specific","Tinker" }, "Exrta [Kill Indicator]", "")
-Tinker.KillSteal = Menu.AddOption({ "Hero Specific","Tinker" }, "Exrta [Steal Kill by Spells]", "")
+Tinker.DMGCalculator = Menu.AddOption({ "Hero Specific","Tinker", "Extra" }, "DMG Calculator", "", 1, 3)
+Menu.SetValueName(Tinker.DMGCalculator, 1, "Off")
+Menu.SetValueName(Tinker.DMGCalculator, 2, "Enabled - Bar")
+Menu.SetValueName(Tinker.DMGCalculator, 3, "Enabled - Mouse")
+Tinker.KillIndicator = Menu.AddOption({ "Hero Specific","Tinker", "Extra" }, "Kill Indicator", "")
+Tinker.FailRockets = Menu.AddOption({ "Hero Specific","Tinker", "Extra", "Fail Switch" }, "Fail Rockets", "")
+Tinker.FailRearm = Menu.AddOption({ "Hero Specific","Tinker", "Extra", "Fail Switch" }, "Fail Rearm", "")
+
+Tinker.ExtraSoul = Menu.AddOption({ "Hero Specific","Tinker", "Extra", "Items" }, "Soul Ring", "Cast Soul Ring before each ability")
+Tinker.ExtraSoulT = Menu.AddOption({ "Hero Specific","Tinker", "Extra", "Items" }, "Soul Ring Threshold", "", 150, 500, 50)
+Tinker.ExtraBottle = Menu.AddOption({ "Hero Specific","Tinker", "Extra", "Items" }, "Bottle", "Drink bottle on yourself before each ability")
+
+Tinker.FailRearmAI = Menu.AddOption({ "Hero Specific","Tinker", "Extra", "Fail Switch" }, "Fail Rearm - check abilities / items", "")
+Tinker.KillSteal = Menu.AddOption({ "Hero Specific","Tinker", "Extra" }, "Steal Kill by Spells", "")
 Tinker.FontDMG = Renderer.LoadFont("Tahoma", 16, Enum.FontWeight.BOLD)
 Tinker.FontKill = Renderer.LoadFont("Tahoma", 30, Enum.FontWeight.BOLD)
 
@@ -59,12 +70,86 @@ Tinker.Items[23] =  "Laser"
 Tinker.Items[24] =  "Rockets"
 Tinker.Items[25] =  "March"
 Tinker.Items[26] =  "Rearm"
+Tinker.Items[27] =  "Safe Blink"
 
-Tinker.ItemsLength = 26
+Tinker.ItemsLength = 27
 
 -- Initialize
 
 Tinker.Orders = {}
+
+Tinker.SafePos =
+{
+	Vector(-7305, -5016, 384),
+	Vector(-7328, -4768, 384),
+	Vector(-7264, -4505, 384),
+	Vector(-7136, -4384, 384),
+	Vector(-7072, -1120, 384),
+	Vector(-7072, -672, 384),
+	Vector(-7200, -288, 384),
+	Vector(-6880, 288, 384),
+	Vector(-6944, 1568, 384),
+	Vector(-6688, 3488, 384),
+	Vector(-6752, 3616, 384),
+	Vector(-6816, 3744, 384),
+	Vector(-6816, 4448, 384),
+	Vector(-5152, 5088, 384),
+	Vector(-3936, 5536, 384),
+	Vector(-5152, 6624, 384),
+	Vector(-3680, 6624, 384),
+	Vector(-2720, 6752, 384),
+	Vector(-2720, 5536, 384),
+	Vector(-1632, 6688, 384),
+	Vector(-1056, 6752, 384),
+	Vector(-736, 6816, 384),
+	Vector(-992, 5536, 384),
+	Vector(-1568, 5536, 384),
+	Vector(608, 7008, 384),
+	Vector(1632, 6752, 256),
+	Vector(2336, 7136, 384),
+	Vector(1568, 3040, 384),
+	Vector(1824, 3296, 384),
+	Vector(-2976, 480, 384),
+	Vector(736, 1056, 256),
+	Vector(928, 1248, 256),
+	Vector(928, 1696, 256),
+	Vector(2784, 992, 256),
+	Vector(-2656, -1440, 256),
+	Vector(-2016, -2464, 256),
+	Vector(-2394, -3110, 256),
+	Vector(-1568, -3232, 256),
+	Vector(-2336, -4704, 256),
+	Vector(-416, -7072, 384),
+	Vector(2336, -5664, 384),
+	Vector(2464, -5728, 384),
+	Vector(2848, -5664, 384),
+	Vector(2400, -6817, 384),
+	Vector(3040, -6624, 384),
+	Vector(4256, -6624, 384),
+	Vector(4192, -6880, 384),
+	Vector(5024, -5408, 384),
+	Vector(5856, -6240, 384),
+	Vector(6304, -6112, 384),
+	Vector(6944, -5472, 384),
+	Vector(7328, -5024, 384),
+	Vector(7200, -3296, 384),
+	Vector(7200, -2272, 384),
+	Vector(6944, -992, 384),
+	Vector(6816, -224, 384),
+	Vector(7200, 480, 384),
+	Vector(7584, 2080, 256),
+	Vector(7456, 2784, 384),
+	Vector(5344, 2528, 384),
+	Vector(7200, 5536, 384),
+	Vector(4192, 6944, 384),
+	Vector(5472, 6752, 384),
+	Vector(-6041, -6883, 384),
+	Vector(-5728, -6816, 384),
+	Vector(-5408, -7008, 384),
+	Vector(-5088, -7072, 384),
+	Vector(-4832, -7072, 384),
+	Vector(-3744, -7200, 384)
+}
 
 local list = "List:"
 local tempi = 1
@@ -78,6 +163,7 @@ end
 -- 200	=	Key
 -- 300	=	Delay Reset
 -- 400	=	MP Threshold
+-- 500	=	Range
 for i = 1, Tinker.OrdersCount do 
 	Tinker.Orders[i] = {}
 	local temp = i
@@ -86,6 +172,7 @@ for i = 1, Tinker.OrdersCount do
 	Tinker.Orders[i][200] = Menu.AddKeyOption({ "Hero Specific","Tinker", "Orders", "Order #" .. temp }, temp .. ". Key", Enum.ButtonCode.KEY_PAD_0 )
 	Tinker.Orders[i][300] = Menu.AddOption({ "Hero Specific","Tinker", "Orders", "Order #" .. temp }, temp .. ". Reset", "", 1, 10, 1)
 	Tinker.Orders[i][400] = Menu.AddOption({ "Hero Specific","Tinker", "Orders", "Order #" .. temp }, temp .. ". MP Threshold", "", 0, 2000, 100)
+	Tinker.Orders[i][500] = Menu.AddOption({ "Hero Specific","Tinker", "Orders", "Order #" .. temp }, temp .. ". Search in mouse range", "If 0 - option will not taken into account", 0, 3000, 100)
 
 	for l = 1, Tinker.SpellCount do	
 		local stemp = ""
@@ -101,8 +188,11 @@ end
 -- Start
 Tinker.ComboCurrentCast = {}
 Tinker.ComboLastCastTime = {}
+Tinker.Enabled = false
+Tinker.FailTimeRearm = 0
 
 function Tinker.OnUpdate()
+	Tinker.Enabled = false
 	Tinker.CurrentTime = GameRules.GetGameTime()
 	if not Engine.IsInGame() then return end
 	if not GameRules.GetGameState() == 5 then return end
@@ -113,10 +203,11 @@ function Tinker.OnUpdate()
 	if NPC.GetUnitName(Tinker.Hero) ~= "npc_dota_hero_tinker" then return end
 	if NPC.HasModifier(Tinker.Hero, "modifier_teleporting") then return end
 	if not Entity.IsAlive(Tinker.Hero) then return end
+	Tinker.Enabled = true
 	Tinker.ManaPoint = NPC.GetMana(Tinker.Hero)
 	-- Orders
 	for i = 1, Tinker.OrdersCount do
-		if Menu.IsKeyDown(Tinker.Orders[i][200])  and Menu.IsEnabled(Tinker.Orders[i][100]) then
+		if Menu.IsKeyDown(Tinker.Orders[i][200])  and Menu.IsEnabled(Tinker.Orders[i][100]) and not Input.IsInputCaptured() then
 			
 			-- Check last cast time
 			if (Tinker.ComboLastCastTime[i] ~= nil) then 
@@ -161,8 +252,9 @@ function Tinker.PreComboWombo(order)
 		if (i == Tinker.ComboCurrentCast[order]) then
 			-- Cast Ability's
 			local cast = Menu.GetValue(Tinker.Orders[order][i])
+			local range = Menu.GetValue(Tinker.Orders[order][500])
 			if cast == 1 then return end
-			Tinker.ComboCast(cast)
+			Tinker.ComboCast(cast, range)
 		end
 	end
 end
@@ -199,7 +291,7 @@ function Tinker.StealCheck()
 	end
 	
 	-- Auto Steal Laser + Rocket's
-	for d, npc in pairs(NPC.GetHeroesInRadius(Tinker.Hero, laserRadius, Enum.TeamType.TEAM_ENEMY)) do	
+	for d, npc in pairs(Entity.GetHeroesInRadius(Tinker.Hero, laserRadius, Enum.TeamType.TEAM_ENEMY)) do	
 		if Entity.IsHero(npc) 
 			and not NPC.HasState(npc, Enum.ModifierState.MODIFIER_STATE_MAGIC_IMMUNE) 
 			and not Entity.IsDormant(npc) 
@@ -221,7 +313,7 @@ function Tinker.StealCheck()
 	end
 	
 	-- Auto Steal by Rockets
-	for d, npc in pairs(NPC.GetHeroesInRadius(Tinker.Hero, rocketsRadius, Enum.TeamType.TEAM_ENEMY)) do	
+	for d, npc in pairs(Entity.GetHeroesInRadius(Tinker.Hero, rocketsRadius, Enum.TeamType.TEAM_ENEMY)) do	
 		if Entity.IsHero(npc) and not NPC.HasState(npc, Enum.ModifierState.MODIFIER_STATE_MAGIC_IMMUNE) and not Entity.IsDormant(npc) then
 			local ttlDMG = NPC.GetMagicalArmorDamageMultiplier(npc) * dmgRockets
 			
@@ -240,11 +332,23 @@ function Tinker.OnDraw()
 	if NPC.GetUnitName(Tinker.Hero) ~= "npc_dota_hero_tinker" then return end
 	CalculateTotalDMG()
 	if Tinker.TotalDamage == 0 then return end
-	Renderer.SetDrawColor(0, 0, 0, 255)
-	Renderer.DrawFilledRect(0, 250, 160, 30)
 	
-	Renderer.SetDrawColor(255, 255, 255, 255)
-	Renderer.DrawText(Tinker.FontDMG, 10, 257, "procast damage: " .. math.floor(Tinker.TotalDamage), 1)
+	if Menu.GetValue(Tinker.DMGCalculator) == 2 then
+		Renderer.SetDrawColor(0, 0, 0, 255)
+		Renderer.DrawFilledRect(0, 250, 120, 30)
+		Renderer.SetDrawColor(255, 255, 255, 255)
+		Renderer.DrawTextCenteredX(Tinker.FontDMG, 60, 257, "damage: " .. math.floor(Tinker.TotalDamage), 1)
+	end
+	
+	if Menu.GetValue(Tinker.DMGCalculator) == 3 then
+		local x, y = Input.GetCursorPos()
+		Renderer.SetDrawColor(0, 0, 0, 70)
+		Renderer.DrawFilledRect(x - 60, y - 35, 120, 30)
+		Renderer.SetDrawColor(255, 255, 255, 255)
+		Renderer.DrawTextCenteredX(Tinker.FontDMG, x, y - 28, "damage: " .. math.floor(Tinker.TotalDamage), 1)
+	end
+	
+	
 	
 	if not Menu.IsEnabled(Tinker.KillIndicator) then return true end
 
@@ -269,6 +373,83 @@ function Tinker.OnDraw()
 		end
 	end
 	
+end
+
+function Tinker.OnPrepareUnitOrders(orders)
+	if not Tinker.Enabled then return true end
+	
+	if	orders.ability ~= nil 
+		and Entity.IsAbility(orders.ability) 
+	then
+		if orders.order == Enum.UnitOrder.DOTA_UNIT_ORDER_CAST_NO_TARGET then
+			if Menu.IsEnabled(Tinker.FailRockets) then
+				if Ability.GetName(orders.ability) == "tinker_heat_seeking_missile"
+				then
+					local c = #Entity.GetHeroesInRadius(Tinker.Hero, Ability.GetCastRange(orders.ability), Enum.TeamType.TEAM_ENEMY)
+					if c == 0 then	return false end
+				end
+			end
+			
+			if Menu.IsEnabled(Tinker.FailRearm) then
+				if Ability.GetName(orders.ability) == "tinker_rearm"
+				then
+					if GameRules.GetGameTime() < Tinker.FailTimeRearm then return false end
+					local abilityRearm = NPC.GetAbilityByIndex(Tinker.Hero, 3)
+					if Ability.IsChannelling(abilityRearm) then
+						return false
+					else
+						Tinker.FailTimeRearm = Ability.GetCastPoint(orders.ability) + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING) + GameRules.GetGameTime() + 0.1
+					end
+
+					if Menu.IsEnabled(Tinker.FailRearmAI) then
+						local ret = false
+						for i = 0, 5 do 
+							local item = NPC.GetItemByIndex(Tinker.Hero, i)
+							local ab = NPC.GetAbilityByIndex(Tinker.Hero, i)
+							
+							if ab ~= nil and Ability.GetCooldown(ab) > 0 then
+								ret = true
+							end
+							
+							if item ~= nil and Ability.GetCooldown(item) > 0 then
+								ret = true
+							end
+						end
+						
+						if not ret then return ret end
+					end
+				end
+				
+				-- Tinker.ExtraSoul
+				-- Tinker.ExtraBottle
+			end
+		end
+		
+		
+		if Menu.IsEnabled(Tinker.ExtraSoul) then
+			local sr = NPC.GetItem(Tinker.Hero, "item_soul_ring", true)
+			if	sr ~= nil 
+				and Ability.IsCastable(sr, Tinker.ManaPoint)
+				and Entity.GetHealth(Tinker.Hero) > Menu.GetValue(Tinker.ExtraSoulT)
+			then
+				Ability.CastNoTarget(sr)
+			end
+		end
+		
+		if Menu.IsEnabled(Tinker.ExtraBottle) then
+			local bott = NPC.GetItem(Tinker.Hero, "item_bottle", true)
+			if	bott ~= nil 
+				and Ability.IsCastable(bott, Tinker.ManaPoint)
+				and (Entity.GetHealth(Tinker.Hero) < Entity.GetMaxHealth(Tinker.Hero) or Tinker.ManaPoint < NPC.GetMaxMana(Tinker.Hero))
+				and not NPC.HasModifier(Tinker.Hero, "modifier_bottle_regeneration")
+			then
+				Ability.CastNoTarget(bott)
+			end
+		end
+	end
+	
+	
+	return true
 end
 
 function CalculateTotalDMG()
@@ -345,8 +526,13 @@ function CalculateTotalDMG()
 	Tinker.TotalDamage = (Tinker.TotalMagicDamage * Tinker.TotalMagicFactor) + Tinker.TotalPureDamage
 end
 
-function Tinker.ComboCast(cast)
+function Tinker.ComboCast(cast, range)
     Tinker.NearestEnemyHero = Input.GetNearestHeroToCursor(Entity.GetTeamNum(Tinker.Hero), Enum.TeamType.TEAM_ENEMY)	
+	if Tinker.NearestEnemyHero == nil then return end
+	if	not Tinker.NearestEnemyHero
+		or (not NPC.IsPositionInRange(Tinker.NearestEnemyHero, Input.GetWorldCursorPos(), range, 0) and range ~= 0) then
+		return
+	end
     Tinker.NearestEnemyHeroPos = Entity.GetAbsOrigin(Tinker.NearestEnemyHero)
 
 	if cast == 2 then 
@@ -433,20 +619,24 @@ function Tinker.ComboCast(cast)
 		Delay()
 	return end
 	
-	if cast == (Tinker.ItemsLength - 3) then 
+	if cast == (Tinker.ItemsLength - 4) then 
 		Laser()
 	return end
 	
-	if cast == (Tinker.ItemsLength - 2) then 
+	if cast == (Tinker.ItemsLength - 3) then 
 		Rockets()
 	return end
 	
-	if cast == (Tinker.ItemsLength - 1) then 
+	if cast == (Tinker.ItemsLength - 2) then 
 		March()
 	return end
 	
-	if cast == Tinker.ItemsLength then 
+	if cast == (Tinker.ItemsLength - 1) then 
 		Rearm()
+	return end
+
+	if cast == Tinker.ItemsLength then 
+		SafeTP()
 	return end
 
 end
@@ -823,6 +1013,28 @@ function Rearm()
 		Ability.CastNoTarget(abilityRearm)
 		Tinker.LastCastAbility = abilityRearm
 		Tinker.NextTime = Tinker.CurrentTime + 0.5 + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+	return end
+end
+
+function SafeTP()
+    local abilityBlink = NPC.GetItem(Tinker.Hero, "item_blink", true)
+	if	abilityBlink 
+		and Ability.IsCastable(abilityBlink, Tinker.ManaPoint)
+		and Tinker.LastCastAbility ~= abilityBlink
+	then 
+		local t = false
+		for k, v in pairs(Tinker.SafePos) do 
+			if	Input.GetWorldCursorPos():Distance(v):Length() < 1200
+			then
+				t = true
+				Ability.CastPosition(abilityBlink, v)
+			break end
+		end
+		
+		if not t then Ability.CastPosition(abilityBlink, Input.GetWorldCursorPos()) end
+		Tinker.LastCastAbility = abilityBlink
+		Tinker.NextTime = Tinker.CurrentTime + Ability.GetCastPoint(abilityBlink) + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING) + 0.2
+		Tinker.StopAnimation = true
 	return end
 end
 
