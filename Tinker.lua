@@ -4,7 +4,7 @@
 
 local Tinker = {}
 Tinker.IsEnabled = Menu.AddOption({ "Hero Specific","Tinker" }, "Enabled", "")
-Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.3 (08.08.17)\r\n - Added Safe Blink\r\n - Added Fail Switch\r\n - Extra options moved in another menu\r\n - DMG Calculator now have two styles\r\n - in Orders added Closest to mouse option\r\n - Bug fixes", 1,1,1)
+Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.3 (08.08.17)\r\n - Added Safe Blink\r\n - Added Fail Switch\r\n - Added Nearest to mouse option\r\n - Extra options moved in another menu\r\n - DMG Calculator now have two styles\r\n - Bug fixes", 1,1,1)
 Menu.SetValueName(Tinker.Version, 1, "")
 Tinker.DMGCalculator = Menu.AddOption({ "Hero Specific","Tinker", "Extra" }, "DMG Calculator", "", 1, 3)
 Menu.SetValueName(Tinker.DMGCalculator, 1, "Off")
@@ -172,7 +172,7 @@ for i = 1, Tinker.OrdersCount do
 	Tinker.Orders[i][200] = Menu.AddKeyOption({ "Hero Specific","Tinker", "Orders", "Order #" .. temp }, temp .. ". Key", Enum.ButtonCode.KEY_PAD_0 )
 	Tinker.Orders[i][300] = Menu.AddOption({ "Hero Specific","Tinker", "Orders", "Order #" .. temp }, temp .. ". Reset", "", 1, 10, 1)
 	Tinker.Orders[i][400] = Menu.AddOption({ "Hero Specific","Tinker", "Orders", "Order #" .. temp }, temp .. ". MP Threshold", "", 0, 2000, 100)
-	Tinker.Orders[i][500] = Menu.AddOption({ "Hero Specific","Tinker", "Orders", "Order #" .. temp }, temp .. ". Search in mouse range", "If 0 - option will not taken into account", 0, 3000, 100)
+	Tinker.Orders[i][500] = Menu.AddOption({ "Hero Specific","Tinker", "Orders", "Order #" .. temp }, temp .. ". Nearest to mouse", "If 0 - option will not taken into account", 0, 3000, 100)
 
 	for l = 1, Tinker.SpellCount do	
 		local stemp = ""
