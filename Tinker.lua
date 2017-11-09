@@ -1,10 +1,10 @@
 -- Author: paroxysm
--- Version: 4.3
--- Updated: 08.08.2017
+-- Version: 4.3.1
+-- Updated: 09.11.2017
 
 local Tinker = {}
 Tinker.IsEnabled = Menu.AddOption({ "Hero Specific","Tinker" }, "Enabled", "")
-Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.3 (08.08.17)\r\n - Added Safe Blink\r\n - Added Fail Switch\r\n - Added Nearest to mouse option\r\n - Extra options moved in another menu\r\n - DMG Calculator now have two styles\r\n - Bug fixes", 1,1,1)
+Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.3.1 (09.11.17)\r\n- Bug fixes", 1,1,1)
 Menu.SetValueName(Tinker.Version, 1, "")
 Tinker.DMGCalculator = Menu.AddOption({ "Hero Specific","Tinker", "Extra" }, "DMG Calculator", "", 1, 3)
 Menu.SetValueName(Tinker.DMGCalculator, 1, "Off")
@@ -394,7 +394,7 @@ function Tinker.OnPrepareUnitOrders(orders)
 				if Ability.GetName(orders.ability) == "tinker_rearm"
 				then
 					if GameRules.GetGameTime() < Tinker.FailTimeRearm then return false end
-					local abilityRearm = NPC.GetAbilityByIndex(Tinker.Hero, 3)
+					local abilityRearm = NPC.GetAbility(Tinker.Hero, 'tinker_rearm')
 					if Ability.IsChannelling(abilityRearm) then
 						return false
 					else
@@ -463,7 +463,7 @@ function CalculateTotalDMG()
 
 	local laser = NPC.GetAbilityByIndex(Tinker.Hero, 0)
     local rocket = NPC.GetAbilityByIndex(Tinker.Hero, 1)
-    local rearm = NPC.GetAbilityByIndex(Tinker.Hero, 3)
+    local rearm = NPC.GetAbility(Tinker.Hero, 'tinker_rearm')
 	local uniqLaserBonus = NPC.GetAbilityByIndex(Tinker.Hero, 11)	
 	local uniqDamageBonus = NPC.GetAbilityByIndex(Tinker.Hero, 7)	
 		
@@ -1004,7 +1004,7 @@ function March()
 end
 
 function Rearm()
-    local abilityRearm = NPC.GetAbilityByIndex(Tinker.Hero, 3)
+    local abilityRearm = NPC.GetAbility(Tinker.Hero, 'tinker_rearm')
 	if not abilityRearm then return end
 	
     if	Ability.IsCastable(abilityRearm, Tinker.ManaPoint)
