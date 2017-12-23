@@ -1,10 +1,10 @@
 -- Author: paroxysm
--- Version: 4.3.1
--- Updated: 09.11.2017
+-- Version: 4.3.2
+-- Updated: 23.12.2017
 
 local Tinker = {}
 Tinker.IsEnabled = Menu.AddOption({ "Hero Specific","Tinker" }, "Enabled", "")
-Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.3.1 (09.11.17)\r\n- Bug fixes", 1,1,1)
+Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.3.2 (23.12.17)\r\n- Bug fixes", 1,1,1)
 Menu.SetValueName(Tinker.Version, 1, "")
 Tinker.DMGCalculator = Menu.AddOption({ "Hero Specific","Tinker", "Extra" }, "DMG Calculator", "", 1, 3)
 Menu.SetValueName(Tinker.DMGCalculator, 1, "Off")
@@ -527,14 +527,16 @@ function CalculateTotalDMG()
 end
 
 function Tinker.ComboCast(cast, range)
-    Tinker.NearestEnemyHero = Input.GetNearestHeroToCursor(Entity.GetTeamNum(Tinker.Hero), Enum.TeamType.TEAM_ENEMY)	
-	if Tinker.NearestEnemyHero == nil then return end
-	if	not Tinker.NearestEnemyHero
-		or (not NPC.IsPositionInRange(Tinker.NearestEnemyHero, Input.GetWorldCursorPos(), range, 0) and range ~= 0) then
-		return
+	if range ~= 0 then
+		Tinker.NearestEnemyHero = Input.GetNearestHeroToCursor(Entity.GetTeamNum(Tinker.Hero), Enum.TeamType.TEAM_ENEMY)	
+		if Tinker.NearestEnemyHero == nil then return end
+		if	not Tinker.NearestEnemyHero
+			or (not NPC.IsPositionInRange(Tinker.NearestEnemyHero, Input.GetWorldCursorPos(), range, 0) and range ~= 0) then
+			return
+		end
+		Tinker.NearestEnemyHeroPos = Entity.GetAbsOrigin(Tinker.NearestEnemyHero)
 	end
-    Tinker.NearestEnemyHeroPos = Entity.GetAbsOrigin(Tinker.NearestEnemyHero)
-
+	
 	if cast == 2 then 
 		Ghost()
 	return end
