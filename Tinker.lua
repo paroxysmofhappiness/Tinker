@@ -1,11 +1,7 @@
--- Author: paroxysm
--- Version: 4.3.2
--- Updated: 23.12.2017
-
 local Tinker = {}
 Tinker.IsEnabled = Menu.AddOption({ "Hero Specific","Tinker" }, "Enabled", "")
-Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "version: 4.3.2 (23.12.17)\r\n- Bug fixes", 1,1,1)
-Menu.SetValueName(Tinker.Version, 1, "")
+Tinker.Version = Menu.AddOption({ "Hero Specific","Tinker" }, "Version", "- Bug fixes", 1,1,1)
+Menu.SetValueName(Tinker.Version, 1, "4.3.3")
 Tinker.DMGCalculator = Menu.AddOption({ "Hero Specific","Tinker", "Extra" }, "DMG Calculator", "", 1, 3)
 Menu.SetValueName(Tinker.DMGCalculator, 1, "Off")
 Menu.SetValueName(Tinker.DMGCalculator, 2, "Enabled - Bar")
@@ -38,7 +34,6 @@ Tinker.TotalMagicFactor = 0
 Tinker.TotalPureDamage = 0
 Tinker.TotalManaCost = 0
 Tinker.TotalDamage = 0
-
 Tinker.StopAnimation = false
 
 Tinker.Items = {}
@@ -190,6 +185,26 @@ Tinker.ComboCurrentCast = {}
 Tinker.ComboLastCastTime = {}
 Tinker.Enabled = false
 Tinker.FailTimeRearm = 0
+
+function Tinker.OnGameStart()
+	Tinker.ComboCurrentCast = {}
+	Tinker.ComboLastCastTime = {}
+	Tinker.Enabled = false
+	Tinker.FailTimeRearm = 0
+	Tinker.NextTime = 0
+	Tinker.CurrentTime = 0
+	Tinker.Hero = nil
+	Tinker.LastCastAbility = nil
+	Tinker.NearestEnemyHero = nil
+	Tinker.NearestEnemyHeroPos = nil
+	Tinker.ManaPoint = 0
+	Tinker.TotalMagicDamage = 0
+	Tinker.TotalMagicFactor = 0
+	Tinker.TotalPureDamage = 0
+	Tinker.TotalManaCost = 0
+	Tinker.TotalDamage = 0
+	Tinker.StopAnimation = false
+end
 
 function Tinker.OnUpdate()
 	Tinker.Enabled = false
